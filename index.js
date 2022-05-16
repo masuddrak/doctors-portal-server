@@ -26,6 +26,20 @@ async function run() {
             const services=await cursor.toArray();
             res.send(services)
         })
+        // app.get('/booking',async(req,res)=>{
+        //     const query={}
+        //     const cursor = bookingCollection.find(query);
+        //     const bookings=await cursor.toArray();
+        //     res.send(bookings)
+        // })
+
+        // bookings find query system
+        app.get('/booking', async(req,res)=>{
+            const patient=req.query.patientee
+            const query={patient:patient}
+            const bookings= await bookingCollection.find(query).toArray();
+            res.send(bookings)
+        })
         app.post('/booking',async(req,res)=>{
             const booking=req.body;
             const query={treatmentName:booking.treatmentName, date:booking.date, patient:booking.patient}
