@@ -13,6 +13,8 @@ app.use(express.json())
 // collection information
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.1kyfa.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+// token verify function
 function accessJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -77,6 +79,21 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, { expiresIn: '1h' });
             res.send({ result, token })
+        })
+        // verify all user collect
+        app.get('/user',accessJWT,async(req,res)=>{
+            const users=await userCollection.find().toArray()
+            res.send(users)
+        })
+        // add admin fild
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email
+            const filter = { email: email }
+            const updateDoc = {
+                $set: {role:'admin'},
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result)
         })
     } finally {
 
